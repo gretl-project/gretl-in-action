@@ -1,0 +1,42 @@
+set verbose off
+clear
+
+function matrix quicksort (matrix m)
+/* Implementation of the divide-and-conquer quicksort algorithm.
+   For details see here: https://en.wikipedia.org/wiki/Quicksort */
+
+    m = vec(m)
+
+    scalar nrows = rows(m)
+    if nrows < 2
+        return m
+    endif
+
+    matrix smaller, bigger
+    scalar pivot = m[1]
+    scalar steps = 1 + rows(m[2:])
+
+    loop i=2..steps
+        if m[i] <= pivot
+            smaller |= m[i]
+        else
+            bigger |= m[i]
+        endif
+    endloop
+
+    return quicksort(smaller) | pivot | quicksort(bigger)
+end function
+
+# Some random vector
+matrix m = mrandgen(t, 14, 1e5, 1)
+
+set stopwatch
+matrix r = quicksort(m)
+printf "quicksort() took %g seconds\n", $stopwatch
+
+set stopwatch
+matrix z = msortby(m, 1)
+printf "msortby() took %g seconds\n", $stopwatch
+
+# Check for equality
+assert(sum(r - z) == 0)
